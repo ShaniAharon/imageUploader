@@ -1,7 +1,8 @@
 <template>
-  <div class="img-upload-container">
+  <div v-if="!isUploaded" class="home-page center upload-center">
     <h1>Upload your image</h1>
     <template v-if="!isLoading">
+      <h4>File should be Jpeg, Png...</h4>
       <!-- UPLOAD IMG -->
       <label
         for="imgUploader"
@@ -11,12 +12,12 @@
         :class="{drag: isDragOver, 'not-drag': !isDragOver}"
       >
         <!--prevent on drop and dragover is importent soo the img will not open in the browser-->
-        <img
-          :src="isDragOver ? 'src/assets/box.png' : 'src/assets/upload.png'"
-          alt="Drop images here"
-        />
-        <h3>Choose an image <span class="light"> or drag it here</span></h3>
+        <img src="src/assets/upload.png" alt="Drop images here" />
+        <h3>Drag & Drop your image here</h3>
       </label>
+      <h4>Or</h4>
+      <input type="file" ref="file" style="display: none" />
+      <button @click="$refs.file.click()">Choose a file</button>
       <!-- HIDDEN INPUT -->
       <input
         type="file"
@@ -28,6 +29,16 @@
     <!-- LOADER -->
     <img v-else src="src/assets/loader.gif" alt="" />
   </div>
+  <div v-else class="home-page center upload-center">
+    <i class="fa-solid fa-circle-check ok"></i>
+    <h1>Uploaded Successfully!</h1>
+    <template v-if="!isLoading">
+      <img class="uploaded-img" :src="imgUrl" alt="" />
+      <p class="p-test"></p>
+      <input type="text" :value="imgUrl" class="input-test" />
+      <button class="btn-test" @click="copyToClip">Copy Link</button>
+    </template>
+  </div>
 </template>
 
 <script>
@@ -37,6 +48,8 @@
       return {
         isLoading: false,
         isDragOver: false,
+        isUploaded: false,
+        imgUrl: '',
       };
     },
     methods: {
@@ -52,8 +65,13 @@
         this.isLoading = true;
         this.isDragOver = false;
         const res = await uploadImg(file);
-        this.$emit('save', res.url);
+        // this.$emit('save', res.url);
+        this.imgUrl = res.url;
+        this.isUploaded = true;
         this.isLoading = false;
+      },
+      copyToClip() {
+        navigator.clipboard.writeText(this.imgUrl);
       },
     },
   };
@@ -69,6 +87,7 @@
   }
   label img {
     height: 100px;
+    width: 50px;
   }
   input {
     height: 0;
@@ -76,20 +95,22 @@
   }
   .drag {
     color: grey;
-    background-color: rgb(245, 245, 245);
+    background-color: #e9f1fc;
     display: inline-block;
     padding: 30px 5px;
-    width: 450px;
-    border: 1px dashed gray;
+    height: 250px;
+    width: 400px;
+    border: 4px dashed #cee0f8;
     border-radius: 8px;
   }
   .not-drag {
     color: grey;
-    background-color: rgb(216, 216, 216);
+    background-color: #f6f8fb;
     display: inline-block;
     padding: 30px 5px;
-    width: 450px;
-    border: 1px dashed gray;
+    height: 250px;
+    width: 400px;
+    border: 4px dashed #cee0f8;
     border-radius: 8px;
   }
   .light {
